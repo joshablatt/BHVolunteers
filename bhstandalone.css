@@ -1,0 +1,22 @@
+/* Styles for testing or standalone use that mimic the BH website.  
+ * If this gets put on the website they should be removed *
+*/  
+
+body, body a, body table, body .dark, body .neutral, body .light, .fbList li a {
+		 			font-size: 14px;
+					font-family: "Helvetica", arial, sans-serif;
+}
+ body {
+  	background: url('http://berkwood.org/pics/body_bg.jpg') no-repeat center top;
+  	margin: 0;
+  	padding: 0 0 50px;
+}
+
+.content_main {
+	position: absolute;  left: 100px;  top: 200px;
+  	text-align: left;
+  	background: #fff;
+  	width: 980px;
+  	padding: 30px 20px;
+  	margin: 0 auto 40px;
+}
