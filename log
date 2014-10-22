@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+	
+  <script>
+  $(function() {
+    var availableTags = [
+      "Mia Blatt",
+      "Gabriel Fryscak",
+      "Ruby Fitzpatrick"
+    ];
+    $( "#names" ).autocomplete({
+      source: availableTags
+    });
+  });
+  </script>
+	
+	      <!-- A few styles from the BH site that can be removed if it's in the CMS -->
+	   <style>
+	 		body, body a, body table, body .dark, body .neutral, body .light, .fbList li a {
+		 			 			font-size: 14px;
+		 						font-family: "Helvetica", arial, sans-serif;
+								}
+	    body {
+      	background: url('http://berkwood.org/pics/body_bg.jpg') no-repeat center top;
+      	margin: 0;
+      	padding: 0 0 50px;
+      }
+			
+			.content_main {
+			 	position: absolute;  left: 100px;  top: 200px;
+      	text-align: left;
+      	background: #fff;
+      	width: 980px;
+      	padding: 30px 20px;
+      	margin: 0 auto 40px;
+				}
+    </style>
+		
+	<!-- Google API needed to query the source spreadsheet -->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+   
+		google.load("visualization", "1", {packages:["table"]});
+/*    google.setOnLoadCallback(drawTable);
+	  google.setOnLoadCallback(drawSumTable);
+*/		
+     
+		<!-- This is the specific spreadsheet reference--> 
+		var docKey = '18Kgqf7ys75zoOqBzc_k0KgKavGuvQk40nKOnOY5ZTAM';
+		var nameKey = "'Josh'";
+	
+		<!-- Despite the name, what this does is get the data and hand it off to handleQueryResponse to draw -->	
+    function drawTable() {
+			var query = new google.visualization.Query(
+      'https://docs.google.com/spreadsheet/ccc?key=' + docKey + '&usp=drive_web#gid=0#');
+      query.setQuery('select * where A contains ' + nameKey);
+  		query.send(handleQueryResponse);
+    }
+		
+ 		function handleQueryResponse(response) {
+  		if (response.isError()) {
+    		 alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+         return;
+      }
+
+        var data = response.getDataTable();
+
+	      /* total up hours  Note that appropriate columns are hard coded*/
+				var totHours = 0;
+				var devHours = 0;
+				for (var i = 0; i < data.getNumberOfRows(); i++) {
+          totHours = totHours + data.getValue(i,4); 
+					if (data.getValue(i,2) == 'Yes') { 
+					    devHours = devHours + data.getValue(i,4);
+					}
+        }
+        /* write totals to documnet */
+	     document.getElementById("totHours").innerHTML = totHours;
+		   document.getElementById("devHours").innerHTML = devHours; 
+	
+			 /* write detail table */
+ 	     var table = new google.visualization.Table(document.getElementById('table_div'));
+       table.draw(data, {showRowNumber: false, width: 700});
+ 							 
+    }
+
+   function setNameKey(){
+      
+			nameKey="'" + document.getElementById("names").value + "'";  
+		  drawTable();
+   }
+
+  
+	  </script>
+	
+</head>
+<body>
+<div class="content_main">
+    <h2 align="center"> Volunteer Hours Log</h2>
+		 
+<div class="ui-widget">
+  <label for="names">Student Name: </label>
+  <input id="names">
+		<button onclick="setNameKey()">Show Report</button>
+</div>
+
+		<p></p>
+
+
+ 
+ 		<b>Total Volunteer Hours: </b> <span id="totHours"></span></br>
+		<b>Development Hours: </b><span id="devHours"></span>
+
+		<p id="sum_div"> </p>
+		<p id="tot_div"> </p>
+		<h4>Detail</h4>
+    <p id="table_div"></p>
+		<p id="Rows"> </p>
+
+	  To record additional hours <a href="https://docs.google.com/forms/d/1XRh6CnU6Zc-rJlqqo__K44P3lsl1vgWhnwHLDyoxZ6E/viewform?edit_requested=true">click here</a>
+
+ </div>
+ 
+</body>
+</html>
