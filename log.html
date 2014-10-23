@@ -1,5 +1,5 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
 <head>
   <title>Berkood Hedge Volunteer Hours</title>
 
@@ -16,32 +16,45 @@
   <script type="text/javascript">   
   google.load("visualization", "1", {packages:["table"]});
 
-	<!-- This is the specific spreadsheet reference--> 
+	<!-- Constants determined by the specific spreadsheet --> 
 		var docKey = '18Kgqf7ys75zoOqBzc_k0KgKavGuvQk40nKOnOY5ZTAM';
-    var HOURSCOL = 4;
+    var HOURSCOL = 4;   /* columns counting from 0 */
 		var STUDENTCOL = 0;
+		var STUCOLLETTER = 'A'
 		var ISDEVCOL = 2;
 		var DEVYES = "Yes";
 		var DEVNO = "No";
 
 		var nameKey;   /* global for passing selected student name (yes a little sloppy) */
 
-	/* jquery autocomplete widget */	
-  $(function() {
-    var availableTags = [
-      "Mia Blatt",
-      "Gabriel Fryscak",
-      "Ruby Fitzpatrick"
-    ];
+   /* IN PROCESS   getDistinctValues(columnIndex) + a full pull of the column would do i*/
+	 function getNames() { 
+			var query = new google.visualization.Query(
+      'https://docs.google.com/spreadsheet/ccc?key=' + docKey + '&usp=drive_web#gid=0#');
+/*      query.setQuery('select A, sum(E) group by A'); */
+      query.setQuery('select A'); 
+  		query.send(handleNameQueryResponse);
+    }
+ 		function handleNameQueryResponse(response) {
+  		if (response.isError()) {
+    		 alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+         return;
+      }
+       var data = response.getDataTable();
+	
+					/* jquery autocomplete widget */	
+    $(function() {
+    var availableTags = data.getDistinctValues(0);
     $( "#names" ).autocomplete({
       source: availableTags
     });
-  });
+    });
+	  }
  	
 
-/*  If loading something at the start this is the command to use 
-   google.setOnLoadCallback(drawTable);
-*/		     
+   /*  If loading something one the document is fully loaded this does it  */
+   google.setOnLoadCallback(getNames);
+		     
 	
 		<!-- This gets the data from the spreadsheet and hands it off to handleQueryResponse to draw -->	
     function drawTable() {
@@ -73,8 +86,7 @@
 	
 			 /* write detail table */
  	     var table = new google.visualization.Table(document.getElementById('table_div'));
-       table.draw(data, {showRowNumber: false, width: 700});
- 							 
+       table.draw(data, {showRowNumber: false, width: 700}); 							 
     }
 
    function setNameKey(){     
@@ -101,6 +113,8 @@
 
 		<h4>Detail</h4>
     <p id="table_div"></p>
+
+	    <p id="name_div"></p>
 
 	  To record additional hours <a href="https://docs.google.com/forms/d/1XRh6CnU6Zc-rJlqqo__K44P3lsl1vgWhnwHLDyoxZ6E/viewform?edit_requested=true">click here</a>
 
