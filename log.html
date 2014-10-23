@@ -16,23 +16,35 @@
   <script type="text/javascript">   
   google.load("visualization", "1", {packages:["table"]});
 
-	<!-- Constants determined by the specific spreadsheet --> 
-		var docKey = '18Kgqf7ys75zoOqBzc_k0KgKavGuvQk40nKOnOY5ZTAM';
-    var HOURSCOL = 4;   /* columns counting from 0 */
-		var STUDENTCOL = 0;
-		var STUCOLLETTER = 'A'
-		var ISDEVCOL = 2;
-		var DEVYES = "Yes";
-		var DEVNO = "No";
+	// Constants determined by the specific spreadsheet 
+	/*	var docKey = '18Kgqf7ys75zoOqBzc_k0KgKavGuvQk40nKOnOY5ZTAM';
+    var HOURSCOL = 4,   // columns counting from 0 
+		    STUDENTCOL = 0,
+		    STUCOLLETTER = 'A',
+		    ISDEVCOL = 2,
+		    DEVYES = "Yes",
+		    DEVNO = "No"; */
 
-		var nameKey;   /* global for passing selected student name (yes a little sloppy) */
+    var docKey = '1ED-YOmTvIX2vL1EqoFWcP6C_DkYtZFQgDzPgh1SHd0o'; 
+		var HOURSCOL = 6,   /* columns counting from 0 */
+		    STUDENTCOL = 2,
+		    STUCOLLETTER = 'C',
+		    ISDEVCOL = 4,
+		    DEVYES = "Development",
+		    DEVNO = "Regular";
+		
 
-   /* IN PROCESS   getDistinctValues(columnIndex) + a full pull of the column would do i*/
+		var nameKey;   // global for passing selected student name (yes a little sloppy)
+
+
+ //  Once document is loaded, get names and load into autocomplete select widget 
+   google.setOnLoadCallback(getNames);
+	   
 	 function getNames() { 
 			var query = new google.visualization.Query(
       'https://docs.google.com/spreadsheet/ccc?key=' + docKey + '&usp=drive_web#gid=0#');
-/*      query.setQuery('select A, sum(E) group by A'); */
-      query.setQuery('select A'); 
+     //  query.setQuery('select A, sum(E) group by A'); // I assume this is slower 
+      query.setQuery('select ' + STUCOLLETTER); 
   		query.send(handleNameQueryResponse);
     }
  		function handleNameQueryResponse(response) {
@@ -42,25 +54,24 @@
       }
        var data = response.getDataTable();
 	
-					/* jquery autocomplete widget */	
+		// load names into jquery autocomplete widget 	
     $(function() {
-    var availableTags = data.getDistinctValues(0);
+     var availableTags = data.getDistinctValues(0);
+	//	var availableTags = ['Aidan', 'Arlo and Tres'];
+	  alert(availableTags);
     $( "#names" ).autocomplete({
       source: availableTags
     });
     });
-	  }
- 	
 
-   /*  If loading something one the document is fully loaded this does it  */
-   google.setOnLoadCallback(getNames);
-		     
-	
-		<!-- This gets the data from the spreadsheet and hands it off to handleQueryResponse to draw -->	
+		}
+ 	
+  	     
+		<!-- This gets volunteer hours data from the spreadsheet and hands it off to handleQueryResponse to draw -->	
     function drawTable() {
 			var query = new google.visualization.Query(
       'https://docs.google.com/spreadsheet/ccc?key=' + docKey + '&usp=drive_web#gid=0#');
-      query.setQuery('select * where A contains ' + nameKey);
+      query.setQuery('select * where ' + STUCOLLETTER + ' contains ' + nameKey);
   		query.send(handleQueryResponse);
     }
 		
