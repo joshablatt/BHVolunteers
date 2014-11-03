@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Berkood Hedge Volunteer Hours</title>
+
+  <!-- Load libraries:  Google API to query the source spreadsheet and display table -->
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+  <!-- Style sheet if not on the Berkwood Hedge site-->
+  <link rel="stylesheet" type="text/css" href="bhstandalone.css">
+
+  <script type="text/javascript">
+    google.load("visualization", "1", {packages:["table"]});
+  //  Once document is loaded, get names and load into autocomplete select widget
+    google.setOnLoadCallback(getTotals);
+
+
+// Constants determined by the specific spreadsheet
+
+    var docKey = '1ED-YOmTvIX2vL1EqoFWcP6C_DkYtZFQgDzPgh1SHd0o';  // test
+
+		<!-- This gets volunteer hours data from the spreadsheet and hands it off to handleQueryResponse to draw -->
+    function getTotals() {
+			var query = new google.visualization.Query(
+      'https://docs.google.com/spreadsheet/ccc?key=' + docKey + '&usp=drive_web#gid=0#');
+      query.setQuery('select C, sum(G) group by C');
+      query.send(handleTotals);
+    }
+
+    function getDev() {
+      var query = new google.visualization.Query(
+      'https://docs.google.com/spreadsheet/ccc?key=' + docKey + '&usp=drive_web#gid=0#');
+      query.setQuery("select C, sum(G) where E = 'Development' group by C");
+      query.send(handleDev);
+    }
+
+    var sumTable, devTable;
+
+ 		function handleTotals(response) {
+  		if (response.isError()) {
+    		 alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+         return;
+      }
+       sumTable = response.getDataTable();
+       sumTable.setColumnLabel(1,"Total Hours");
+  	 /* write detail table */
+       // sumTable = new google.visualization.Table(document.getElementById('table_div'));
+       // sumTable.draw(data, {showRowNumber: false, width: 700});
+       getDev();
+     }
+
+    function handleDev(response) {
+     if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+     }
+     var devTable = response.getDataTable();
+     devTable.setColumnLabel(1,"Dev Hours");
+     var combinedTable = google.visualization.data.join(sumTable, devTable, "full", [[0,0]], [1],[1])
+  /* write detail table */
+
+
+      table = new google.visualization.Table(document.getElementById('table_div'));
+      table.draw(combinedTable, {showRowNumber: false, width: 700});
+    }
+
+  </script>
+</head>
+
+<body>
+  <div class="content_main">
+    <h2 align="center"> Family Totals for Volunteer Hours</h2>
+
+		<p>&nbsp;</p>
+
+ 		  <p id="table_div"></p>
+
+ </div>
+
+</body>
+</html>

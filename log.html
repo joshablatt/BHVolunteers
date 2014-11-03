@@ -13,38 +13,30 @@
   <!-- Style sheet if not on the Berkwood Hedge site-->
   <link rel="stylesheet" type="text/css" href="bhstandalone.css">
 
-  <script type="text/javascript">   
+  <script type="text/javascript">
   google.load("visualization", "1", {packages:["table"]});
 
-	// Constants determined by the specific spreadsheet 
-	/*	var docKey = '18Kgqf7ys75zoOqBzc_k0KgKavGuvQk40nKOnOY5ZTAM';
-    var HOURSCOL = 4,   // columns counting from 0 
-		    STUDENTCOL = 0,
-		    STUCOLLETTER = 'A',
-		    ISDEVCOL = 2,
-		    DEVYES = "Yes",
-		    DEVNO = "No"; */
+// Constants determined by the specific spreadsheet
 
-    var docKey = '1ED-YOmTvIX2vL1EqoFWcP6C_DkYtZFQgDzPgh1SHd0o'; 
+    var docKey = '1ED-YOmTvIX2vL1EqoFWcP6C_DkYtZFQgDzPgh1SHd0o';  // test
 		var HOURSCOL = 6,   /* columns counting from 0 */
 		    STUDENTCOL = 2,
 		    STUCOLLETTER = 'C',
 		    ISDEVCOL = 4,
 		    DEVYES = "Development",
 		    DEVNO = "Regular";
-		
+
 
 		var nameKey;   // global for passing selected student name (yes a little sloppy)
 
 
- //  Once document is loaded, get names and load into autocomplete select widget 
+ //  Once document is loaded, get names and load into autocomplete select widget
    google.setOnLoadCallback(getNames);
-	   
-	 function getNames() { 
+
+	 function getNames() {
 			var query = new google.visualization.Query(
       'https://docs.google.com/spreadsheet/ccc?key=' + docKey + '&usp=drive_web#gid=0#');
-     //  query.setQuery('select A, sum(E) group by A'); // I assume this is slower 
-      query.setQuery('select ' + STUCOLLETTER); 
+      query.setQuery('select ' + STUCOLLETTER );
   		query.send(handleNameQueryResponse);
     }
  		function handleNameQueryResponse(response) {
@@ -53,28 +45,33 @@
          return;
       }
        var data = response.getDataTable();
-	
-		// load names into jquery autocomplete widget 	
+
+
+		// load names into jquery autocomplete widget
     $(function() {
-     var availableTags = data.getDistinctValues(0);
-	//	var availableTags = ['Aidan', 'Arlo and Tres'];
-	  alert(availableTags);
-    $( "#names" ).autocomplete({
+      var availableTags = data.getDistinctValues(0);
+
+     // if there's a blank entry it shows up first and screws up the autoselect so this gets rid of it
+     if (!availableTags[0]){
+         availableTags.splice(0,1);
+     }
+
+	  $( "#names" ).autocomplete({
       source: availableTags
     });
     });
 
 		}
- 	
-  	     
-		<!-- This gets volunteer hours data from the spreadsheet and hands it off to handleQueryResponse to draw -->	
+
+
+		<!-- This gets volunteer hours data from the spreadsheet and hands it off to handleQueryResponse to draw -->
     function drawTable() {
 			var query = new google.visualization.Query(
       'https://docs.google.com/spreadsheet/ccc?key=' + docKey + '&usp=drive_web#gid=0#');
-      query.setQuery('select * where ' + STUCOLLETTER + ' contains ' + nameKey);
+      query.setQuery('select B, C, E, F,G, H where C contains ' + nameKey);
   		query.send(handleQueryResponse);
     }
-		
+
  		function handleQueryResponse(response) {
   		if (response.isError()) {
     		 alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
@@ -86,22 +83,22 @@
 				var totHours = 0;
 				var devHours = 0;
 				for (var i = 0; i < data.getNumberOfRows(); i++) {
-          totHours += data.getValue(i,HOURSCOL); 
-					if (data.getValue(i,ISDEVCOL) == DEVYES) { 
-					    devHours += data.getValue(i,HOURSCOL);
+          totHours += data.getValue(i,4);
+					if (data.getValue(i,2) == DEVYES) {
+					    devHours += data.getValue(i,4);
 					}
         }
         /* write totals to documnet */
 	     document.getElementById("totHours").innerHTML = totHours;
-		   document.getElementById("devHours").innerHTML = devHours; 
-	
+		   document.getElementById("devHours").innerHTML = devHours;
+
 			 /* write detail table */
  	     var table = new google.visualization.Table(document.getElementById('table_div'));
-       table.draw(data, {showRowNumber: false, width: 700}); 							 
+       table.draw(data, {showRowNumber: false, width: 700});
     }
 
-   function setNameKey(){     
-			nameKey="'" + document.getElementById("names").value + "'";  
+   function setNameKey(){
+			nameKey="'" + document.getElementById("names").value + "'";
 		  drawTable();
    }
   </script>
@@ -110,7 +107,7 @@
 <body>
   <div class="content_main">
     <h2 align="center"> Volunteer Hours Log</h2>
-		 
+
     <div class="ui-widget">
         <label for="names">Student Name: </label>
         <input id="names">
@@ -118,18 +115,16 @@
     </div>
 
 		<p>&nbsp;</p>
- 
+
  		<p><b>Total Volunteer Hours: </b> <span id="totHours"></span></p>
 		<b>Development Hours: </b><span id="devHours"></span>
 
 		<h4>Detail</h4>
     <p id="table_div"></p>
 
-	    <p id="name_div"></p>
-
 	  To record additional hours <a href="https://docs.google.com/forms/d/1XRh6CnU6Zc-rJlqqo__K44P3lsl1vgWhnwHLDyoxZ6E/viewform?edit_requested=true">click here</a>
 
  </div>
- 
+
 </body>
 </html>
